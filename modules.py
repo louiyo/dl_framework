@@ -20,16 +20,11 @@ def dsigma(x):
 ######################################################################
 
 def relu(x):
-    if x > 0:
-        return x
-    else:
-        return 0
-
+    a = x.sign().add(1).div(2).long()
+    return torch.mul(a,x)
+    
 def drelu(x):
-    if x > 0:
-        return 1
-    else:
-        return 0
+    return x.sign().add(1).div(2).long()
 ######################################################################
 
 #Loss
