@@ -7,7 +7,8 @@ def generate_dataset(N):
     #centre du cercle en 0.5
     input = torch.subtract(input, 0.5)
     #équation de cercle
-    target = input.pow(2).sum(1).sub(1 / (2*ma.pi)).sign().add(1).div(2).long()
+    clas = input.pow(2).sum(1).sub(1 / (2*ma.pi)).sign().add(1).div(2).long()
+    return input, clas
 
 
 
