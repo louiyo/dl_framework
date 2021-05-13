@@ -22,7 +22,7 @@ def dsigma(x):
 def relu(x):
     a = x.sign().add(1).div(2).long()
     return torch.mul(a,x)
-    
+
 def drelu(x):
     return x.sign().add(1).div(2).long()
 ######################################################################
@@ -60,3 +60,11 @@ def backward_pass(w1, b1, w2, b2,
     dl_db2.add_(dl_ds2)
     dl_dw1.add_(dl_ds1.view(-1, 1).mm(x0.view(1, -1)))
     dl_db1.add_(dl_ds1)
+
+##########################
+#update parameters
+
+def optimizer(w,b,lr,dl_dw,dl_db):
+    w = w - lr * dl_dw1
+    b = b - lr * dl_db1
+    
