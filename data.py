@@ -1,10 +1,13 @@
+import torch
+import math as ma
+
 def generate_dataset(N):
-    input = torch.empty(1000, 2).uniform_(0, 1)
-    disc = torch.pow(input[0]-0.5,2)+ torch.pow(input[1]-0.5,2) 
-    
-    if disc <= 1/ma.sqrt(2*ma.pi):
-        target = 1
-    else:
-        target = 0
-    return input, target
+    #Fait un tensor N*2 (ensemble de coordonnées (x,y))
+    input = torch.empty(N, 2).uniform_(0, 1) 
+    #centre du cercle en 0.5
+    input = torch.subtract(input, 0.5)
+    #équation de cercle
+    target = input.pow(2).sum(1).sub(1 / (2*ma.pi)).sign().add(1).div(2).long()
+
+
 
