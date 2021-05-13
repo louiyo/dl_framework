@@ -8,16 +8,39 @@ test_input, test_target = generate_dataset(1000)
 #parametres du network
 nb_layers = 3
 nb_poids = 25
+
 #variance des poids a definir
 epsilon = 0.1
 
 #fait 3 hidden layers
-w1 = torch.empty(nb_hidden, train_input.size(1)).normal_(0, epsilon)
-b1 = torch.empty(nb_hidden).normal_(0, epsilon)
-w2 = torch.empty(nb_classes, nb_hidden).normal_(0, epsilon)
-b2 = torch.empty(nb_classes).normal_(0, epsilon)
-w3 = torch.empty
+w1 = torch.empty(nb_poids, train_input.size(1)).normal_(0, epsilon)
+b1 = torch.empty(nb_poids).normal_(0, epsilon)
+w2 = torch.empty(nb_poids, nb_poids).normal_(0, epsilon)
+b2 = torch.empty(nb_poids).normal_(0, epsilon)
+w3 = torch.empty(1,nb_poids)
+b3 = torch.empty(1,nb_poids)
 
+#fait les gradients
+dl_dw1 = torch.empty(w1.size())
+dl_db1 = torch.empty(b1.size())
+dl_dw2 = torch.empty(w2.size())
+dl_db2 = torch.empty(b2.size())
+dl_dw3 = torch.empty(w3.size())
+dl_db3 = torch.empty(b3.size())
+
+nb_epochs = 20
+for epoch in range(nb_epochs):
+    s1 = forward_pass(train_input, w1, b1)
+    x1 = relu(s1)
+    s2 = forward_pass(x1, w2, b2)
+    x2 = relu(s2)
+    s3 = forward_pass(x2, w3, b3)
+    x3 = relu(s3)
+
+    backward_pass(w1, b1, w2, b2, w3, b3,
+                train_target,
+                x, s1, x1, s2, x2, s3, x3,
+                dl_dw1, dl_db1, dl_dw2, dl_db2, dl_dw3, dl_db3):
 
 #je m aide de ca pour faire le projet
 nb_classes = train_target.size(1)
