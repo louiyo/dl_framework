@@ -6,6 +6,8 @@ def LossMSE(input, weights, bias, target):
     dL_dB = 2 * torch.mul(f_prim(input,weights,bias) , (f(input,weights,bias) - target)) /N
     return L , dL_dw , dL_dB
 '''
+import torch
+import math as ma
 #some activation functions
 ######################################################################
 
@@ -14,8 +16,7 @@ def tanh(x):
     return y
 
 def dtanh(x):
-    y = (1 - torch.pow(tanh(x),2)).div(2)
-    return y
+    return 4 * (x.exp() + x.mul(-1).exp()).pow(-2)
 ######################################################################
 
 def relu(x):
@@ -28,12 +29,10 @@ def drelu(x):
 
 #Loss
 def loss(v, t):
-    y = torch.sum(torch.mul((t-v),(t-v)))
-    return y
+    return (v - t).pow(2).sum()
 
 def dloss(v, t):
-    y = torch.mul((t-v),-2)
-    return y
+    return 2 * (v - t)
 
 #######################################################################
 def forward_pass(x, w, b):
@@ -51,17 +50,26 @@ def backward_pass(w1, b1, w2, b2, w3, b3,
                 dl_dw1, dl_db1, dl_dw2, dl_db2, dl_dw3, dl_db3):
     x0 = x
     dl_dx3 = dloss(x3, t)
+    #print('dldx3',dl_dx3)
     dl_ds3 = dtanh(s3) * dl_dx3
+    #print('dlds3',dl_ds3)
     dl_dx2 = w3.t().mv(dl_ds3)
+    #print('dldx2',dl_dx2)
     dl_ds2 = dtanh(s2) * dl_dx2
+    #print('dlds2',dl_ds2)
     dl_dx1 = w2.t().mv(dl_ds2)
+    #print('dldx1',dl_dx1)
     dl_ds1 = dtanh(s1) * dl_dx1
+    #print('dlds1',dl_ds1)
 
     dl_dw3.add_(dl_ds3.view(-1, 1).mm(x2.view(1, -1)))
+    #print('dldw3',dl_dw3)
     dl_db3.add_(dl_ds3)
     dl_dw2.add_(dl_ds2.view(-1, 1).mm(x1.view(1, -1)))
+    #print('dldw2',dl_dw2)
     dl_db2.add_(dl_ds2)
     dl_dw1.add_(dl_ds1.view(-1, 1).mm(x0.view(1, -1)))
+    #print('dldw1',dl_dw1)
     dl_db1.add_(dl_ds1)
 ##########################
 #update parameters
