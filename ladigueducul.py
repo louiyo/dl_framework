@@ -27,10 +27,10 @@ def generate_dataset(N = 1000):
 ######################################################################
 
 def sigma(x):
-    return x.tanh().add(1).div(2)
+    return x.tanh()
 
 def dsigma(x):
-    return 2 * (x.exp() + x.mul(-1).exp()).pow(-2)
+    return 4 * (x.exp() + x.mul(-1).exp()).pow(-2)
 
 ######################################################################
 
@@ -84,7 +84,7 @@ test_target = test_target * zeta
 
 
 nb_hidden = 50
-eta = 0.01/ nb_train_samples
+eta = 0.1/ nb_train_samples
 epsilon = 1e-6
 
 w1 = torch.empty(nb_hidden, train_input.size(1)).normal_(0, epsilon)
@@ -113,8 +113,8 @@ for k in range(200):
         x0, s1, x1, s2, x2 = forward_pass(w1, b1, w2, b2, train_input[n])
     
         pred = x2.max(0)[1].item()
-        #print('x2',x2)
-        if train_target[n, pred] < train_target[n, 1-pred]: nb_train_errors = nb_train_errors + 1
+        print('x2',x2)
+        if train_target[n, pred] < 0.5: nb_train_errors = nb_train_errors + 1
         acc_loss = acc_loss + loss(x2, train_target[n])
         
         backward_pass(w1, b1, w2, b2,
@@ -137,7 +137,7 @@ for k in range(200):
         _, _, _, _, x2 = forward_pass(w1, b1, w2, b2, test_input[n])
 
         pred = x2.max(0)[1].item()
-        if test_target[n, pred] < test_target[n, 1-pred]: nb_test_errors = nb_test_errors + 1
+        if test_target[n, pred] < 0.5: nb_test_errors = nb_test_errors + 1
         
     print('{:d} acc_train_loss {:.02f} acc_train_error {:.02f}% test_error {:.02f}%'
           .format(k,
