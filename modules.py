@@ -1,4 +1,3 @@
-import pytorch as torch
 '''
 def LossMSE(input, weights, bias, target):
     N = np.size(target)
@@ -10,12 +9,12 @@ def LossMSE(input, weights, bias, target):
 #some activation functions
 ######################################################################
 
-def sigma(x):
-    y = torch.tanh(x)
+def tanh(x):
+    y = torch.tanh(x).add(1).div(2)
     return y
 
-def dsigma(x):
-    y = 1 - torch.pow(sigma(x),2)
+def dtanh(x):
+    y = (1 - torch.pow(tanh(x),2)).div(2)
     return y
 ######################################################################
 
@@ -38,7 +37,8 @@ def dloss(v, t):
 
 #######################################################################
 def forward_pass(x, w, b):
-    return w.mv(x) + b
+    return w.matmul(x) + b
+           # torch.matmul(w1,x)+b
    # x1 = sigma(s1)
    # s2 = w2.mv(x1) + b2
    # x2 = sigma(s2)
@@ -51,11 +51,11 @@ def backward_pass(w1, b1, w2, b2, w3, b3,
                 dl_dw1, dl_db1, dl_dw2, dl_db2, dl_dw3, dl_db3):
     x0 = x
     dl_dx3 = dloss(x3, t)
-    dl_ds3 = drelu(s3) * dl_dx3
+    dl_ds3 = dtanh(s3) * dl_dx3
     dl_dx2 = w3.t().mv(dl_ds3)
-    dl_ds2 = drelu(s2) * dl_dx2
+    dl_ds2 = dtanh(s2) * dl_dx2
     dl_dx1 = w2.t().mv(dl_ds2)
-    dl_ds1 = drelu(s1) * dl_dx1
+    dl_ds1 = dtanh(s1) * dl_dx1
 
     dl_dw3.add_(dl_ds3.view(-1, 1).mm(x2.view(1, -1)))
     dl_db3.add_(dl_ds3)
@@ -63,11 +63,10 @@ def backward_pass(w1, b1, w2, b2, w3, b3,
     dl_db2.add_(dl_ds2)
     dl_dw1.add_(dl_ds1.view(-1, 1).mm(x0.view(1, -1)))
     dl_db1.add_(dl_ds1)
-
 ##########################
 #update parameters
 
 def optimizer(w,b,lr,dl_dw,dl_db):
-    w = w - lr * dl_dw1
-    b = b - lr * dl_db1
+    return w - lr * dl_dw, b - lr * dl_db
+   
     
