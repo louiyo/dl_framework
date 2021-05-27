@@ -1,8 +1,8 @@
 import torch
 import math as ma
 ### je fais un brouyons pour voir la structure global
-from data import *
-from modules import *
+from databis import *
+from modulesbis import *
 #upload les datas
 train_input, train_target = generate_dataset(1000)
 print(train_input)
