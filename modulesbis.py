@@ -21,7 +21,7 @@ def drelu(x):
 
 #Loss
 def loss(v, t):
-    print('nana?',v,t)
+    print('nan',v,t)
     return (v - t).pow(2)
 
 def dloss(v, t):
