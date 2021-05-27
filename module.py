@@ -133,11 +133,19 @@ class Loss(Module):
                       preds*targets + torch.log(1 + torch.exp(-torch.abs(preds))))
         else: return 0
         
-    def grad(self, preds, targets, input_ = 0):
+    def grad(self, preds, targets, layer = None):
+        
         if(self.loss_type == "MSE"):
+            assert layer != None
             m = len(preds)
+            
+            last_layer = self.model.layers[-1]
+            s2 = self.model.layers[-2].prev_input
+            s3 = self.model.layers[-1].prev_input
+            
+            dw = (2/m) * torch.sum((preds - targets)*last_layer.derivative(s3)*s2)
             print(preds.shape, targets.shape, input_.shape)
-            dw = (2/m) * torch.sum(input_ * (preds - targets)
+            dw = (2/m) * torch.sum((preds - targets))
             db = (2/m) * torch.sum(input_ * (preds - targets))
             return dw, db
         elif(self.loss_type == "BCE"):
