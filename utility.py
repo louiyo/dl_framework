@@ -1,6 +1,7 @@
 import torch
 import math
 from time import time
+from plot import *
 
 
 def norm(coords):
@@ -66,7 +67,7 @@ def augment(N):
 
 
 def compute_performances(trials = 10, lossType = "MSE", N_normal = 1000, N_aug = 0, 
-                        lr = 0.01, epochs = 200, mini_batch_size = 100, verbose = False):
+                        lr = 0.01, epochs = 200, mini_batch_size = 100, verbose = False, plot = True):
     
     his = []
     
@@ -113,6 +114,7 @@ def compute_performances(trials = 10, lossType = "MSE", N_normal = 1000, N_aug =
     his = torch.Tensor(his)
     print("Average accuracies:\n", "Training = ", round(his.mean(axis=0)[0].item(), 3),
           ", Test = ", round(his.mean(axis=0)[1].item(), 3))
+    if plot: plot(test_input, test_target, mini_batch_size)
     return his
 
 def compute_accuracy(data, targets, mini_batch_size):
