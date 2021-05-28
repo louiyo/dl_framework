@@ -27,11 +27,6 @@ def normalize(X, mean, std):
 def data_augment(train_input, train_targets, N):
     
     new_points, new_targets = augment(N)
-    print(train_input.type())
-    print(new_points.type())
-    print(train_targets.type())
-    print(new_targets.type())
-
     return torch.cat((train_input, new_points)), torch.cat((train_targets, new_targets))
 
 def augment(N):
@@ -110,7 +105,7 @@ def compute_performances(trials = 10, lossType = "MSE", N_normal = 1000, N_aug =
                 print("Epoch {} - Training loss: {}".format(e+1, running_loss/len(train_input)))
                 print("\nTraining Time =", round(time()-time0, 2), "seconds")
 
-        his.append(print_accuracies(train_input, train_target, test_input, 
+        his.append(print_accuracies(model, train_input, train_target, test_input, 
                                     test_target, mini_batch_size))
     his = torch.Tensor(his)
     print("Average accuracies:\n", "Training = ", round(his.mean(axis=0)[0].item(), 3),
@@ -118,7 +113,7 @@ def compute_performances(trials = 10, lossType = "MSE", N_normal = 1000, N_aug =
     if plot: plot(test_input, test_target, mini_batch_size)
     return his
 
-def compute_accuracy(data, targets, mini_batch_size):
+def compute_accuracy(model, data, targets, mini_batch_size):
     correct_count, all_count = 0, 0
     for b in range(0, data.size(0), mini_batch_size):
 
@@ -132,10 +127,10 @@ def compute_accuracy(data, targets, mini_batch_size):
     return correct_count/all_count
 
 
-def print_accuracies(train_input, train_targets, test_input, test_targets, mini_batch_size):
+def print_accuracies(model, train_input, train_targets, test_input, test_targets, mini_batch_size):
     
-    train_acc = compute_accuracy(train_input, train_targets, mini_batch_size)
-    test_acc = compute_accuracy(test_input, test_targets, mini_batch_size)
+    train_acc = compute_accuracy(model, train_input, train_targets, mini_batch_size)
+    test_acc = compute_accuracy(model, test_input, test_targets, mini_batch_size)
     
     print("Training Accuracy = " , train_acc)
     print("Test Accuracy = ", test_acc)
