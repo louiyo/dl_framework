@@ -3,10 +3,9 @@ from module import *
 from utility import *
 
 
+compute_performances(trials = 10, lossType = "MSE", N_normal = 1000, 
+                     N_aug = 0, lr = 0.01, epochs = 300, mini_batch_size = 100, verbose = False)
 
-performance = compute_performances(trials = 50, lossType = "MSE", N_normal = 700, N_aug = 300, lr = 0.01, epochs = 100, mini_batch_size = 50, verbose = False, plot = True)
-
-print(performance)
 
 #10 -> 0,958
 #20 -> 0,954
