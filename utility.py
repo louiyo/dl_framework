@@ -21,6 +21,17 @@ def normalize(X, mean, std):
     out = (X.sub(mean)).div(std)
     return out
 
+
+def data_augment(train_input, train_targets, N):
+    
+    new_points, new_targets = augment(N)
+    print(train_input.type())
+    print(new_points.type())
+    print(train_targets.type())
+    print(new_targets.type())
+
+    return torch.cat((train_input, new_points)), torch.cat((train_targets, new_targets))
+
 def augment(N):
     epsilon = 0.005
     coords = torch.Tensor([])
@@ -48,6 +59,11 @@ def augment(N):
         
         
     return coords.t(), targets
+
+
+
+
+
 
 def compute_performances(trials = 10, lossType = "MSE", N_normal = 700, N_aug = 300, 
                         lr = 0.1, epochs = 50, mini_batch_size = 10, verbose = False,
@@ -123,13 +139,3 @@ def print_accuracies(train_input, train_targets, test_input, test_targets, mini_
     print("Test Accuracy = ", test_acc)
     return train_acc, test_acc
 
-
-def data_augment(train_input, train_targets, N):
-    
-    new_points, new_targets = augment(N)
-    print(train_input.type())
-    print(new_points.type())
-    print(train_targets.type())
-    print(new_targets.type())
-
-    return torch.cat((train_input, new_points)), torch.cat((train_targets, new_targets))
