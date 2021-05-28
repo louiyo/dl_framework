@@ -1,5 +1,6 @@
 import torch
 import math
+from time import time
 
 def generate_dataset(N = 1000):
     #Fait un tensor N*2 (ensemble de coordonnées (x,y))
@@ -41,6 +42,64 @@ def augment(N):
         
         
     return coords.t(), targets
+
+def compute_performances(trials = 10, lossType = "MSE", N_normal = 800, N_aug = 200, 
+                        lr = 0.1, epochs = 50, mini_batch_size = 10, verbose = False,
+                        plot = True):
+    
+    his = []
+    
+    for i in range(trials):
+        
+        print("Beginning training #", i+1, "\n")        
+        model = Network(lr)
+        
+        train_input, train_target = generate_dataset(N_normal)
+        test_input_, test_target = generate_dataset(N_normal)
+
+        mean, std = train_input.mean(), train_input.std()
+        train_input, train_target = data_augment(train_input, train_target, N_aug)
+
+
+        train_input = normalize(train_input, mean, std)
+        test_input = normalize(test_input_, mean, std)
+
+        loss = Loss(lossType)
+        
+        for e in range(epochs):
+            
+            rand_idx = torch.randperm(train_input.size()[0])
+            train_input, train_target = train_input[rand_idx], train_target[rand_idx]
+
+            running_loss = 0
+            time0 = time()
+
+            for b in range(0, train_input.size(0), mini_batch_size):
+
+                output = model.forward(train_input.narrow(0, b, mini_batch_size))
+                cost, grad = loss.compute(output, train_target.narrow(0, b, mini_batch_size))
+                model.backward(grad)   
+
+                running_loss += cost
+
+
+            if verbose: 
+                print("Epoch {} - Training loss: {}".format(e+1, running_loss/len(train_input)))
+                print("\nTraining Time =", round(time()-time0, 2), "seconds")
+
+        correct_count, all_count = 0, 0
+        for b in range(0, test_input.size(0), mini_batch_size):
+
+            output = model.forward(test_input.narrow(0, b, mini_batch_size))
+            targets = test_target.narrow(0, b, mini_batch_size)
+            for pred, target in zip(output, targets):
+                if((pred >= 0.5 and target == 1) or (pred < 0.5 and target == 0)):
+                    #print(pred, target)
+                    correct_count += 1
+                all_count +=1
+        his.append(correct_count/all_count)
+        print("Training Accuracy of training #",i+1," = ", correct_count/all_count, "\n\n")
+    return torch.mean(torch.Tensor(his))
 
 def data_augment(train_input, train_targets, N):
     
