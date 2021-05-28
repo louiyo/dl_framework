@@ -1,18 +1,8 @@
 # Project 2: Mini deep learning framework
+Benjamin Louis, Camil Hamdane, Thomas Negrello
+EPFL Lausanne, 2021
 
-## Modules
 
-Module c la superclass, méthodes *forward*, *backward*, parametres *parameters* (list de tuples (parameter, grad) )
--> Linear (ou Layer, mais c'est la seule pour l'instant) aura la spécificité d'avoir une backward qui update ses poids
--> Relu doit avoir une backward qui output un gradient soit 0 soit le gradient / Tanh pareil
+## How to run
 
-## Utilities
-
-LossMSE compute une loss et renvoie Tensor[value, gradient]
-class optimizer(model.params, lr, momentum) qui utilise cette loss pour update les poids avec la méthode *step()* (une SGD)
-
-## Network
-class Sequential(*args) qui combine plusieurs modules 
-
-## Data
-Le générateur de data
+python test.py should yield a batch of 10 trainings, with their associated training and test accuracies. Edit test.py and add plot=True for a graphical output of the decision boundary along with the mislabelled coordinated.
