@@ -3,7 +3,7 @@ from module import *
 from utility import *
 
 
-compute_performances(trials = 10, lossType = "MSE", N_normal = 1000, 
+history = compute_performances(trials = 10, lossType = "MSE", N_normal = 1000, 
                      N_aug = 0, lr = 0.01, epochs = 300, mini_batch_size = 100, verbose = False)
 
 
