@@ -2,14 +2,20 @@ import torch
 import math
 from time import time
 
+
+def norm(coords):
+    return coords[0]**2 + coords[1]**2
+
 def generate_dataset(N = 1000):
-    #Fait un tensor N*2 (ensemble de coordonnées (x,y))
-    inp = torch.empty(N, 2).uniform_(0, 1) 
-    #centre du cercle en 0.5
-    a = torch.sub(inp, 0.5)
-    #équation de cercle
-    clas = a.pow(2).sum(1).sub(1 / (2*math.pi)).sign().div(-1).add(1).div(2)
-    return inp, clas
+    
+    R = 1/math.sqrt(2*math.pi)
+    
+    data = torch.empty(N, 2).uniform_(0, 1) 
+    data_centered = data - 0.5
+    
+    targets = torch.Tensor([1 if norm(coord) <= R**2 else 0 for coord in data_centered])
+    
+    return data, targets
 
 def normalize(X, mean, std):
     out = (X.sub(mean)).div(std)
@@ -43,7 +49,7 @@ def augment(N):
         
     return coords.t(), targets
 
-def compute_performances(trials = 10, lossType = "MSE", N_normal = 800, N_aug = 200, 
+def compute_performances(trials = 10, lossType = "MSE", N_normal = 700, N_aug = 300, 
                         lr = 0.1, epochs = 50, mini_batch_size = 10, verbose = False,
                         plot = True):
     
@@ -51,7 +57,7 @@ def compute_performances(trials = 10, lossType = "MSE", N_normal = 800, N_aug = 
     
     for i in range(trials):
         
-        print("Beginning training #", i+1, "\n")        
+        print("-"*50,"\nBeginning training #", i+1, "\n")        
         model = Network(lr)
         
         train_input, train_target = generate_dataset(N_normal)
@@ -87,19 +93,36 @@ def compute_performances(trials = 10, lossType = "MSE", N_normal = 800, N_aug = 
                 print("Epoch {} - Training loss: {}".format(e+1, running_loss/len(train_input)))
                 print("\nTraining Time =", round(time()-time0, 2), "seconds")
 
-        correct_count, all_count = 0, 0
-        for b in range(0, test_input.size(0), mini_batch_size):
+        his.append(print_accuracies(train_input, train_target, test_input, 
+                                    test_target, mini_batch_size))
+    his = torch.Tensor(his)
+    print("Average accuracies:\n", "Training = ", round(his.mean(axis=0)[0].item(), 3),
+          ", Test = ", round(his.mean(axis=0)[1].item(), 3))
+    return his
 
-            output = model.forward(test_input.narrow(0, b, mini_batch_size))
-            targets = test_target.narrow(0, b, mini_batch_size)
-            for pred, target in zip(output, targets):
-                if((pred >= 0.5 and target == 1) or (pred < 0.5 and target == 0)):
-                    #print(pred, target)
-                    correct_count += 1
-                all_count +=1
-        his.append(correct_count/all_count)
-        print("Training Accuracy of training #",i+1," = ", correct_count/all_count, "\n\n")
-    return torch.mean(torch.Tensor(his))
+def compute_accuracy(data, targets, mini_batch_size):
+    correct_count, all_count = 0, 0
+    for b in range(0, data.size(0), mini_batch_size):
+
+        output = model.forward(data.narrow(0, b, mini_batch_size))
+        targets_curr = targets.narrow(0, b, mini_batch_size)
+        for pred, target in zip(output, targets_curr):
+            if((pred >= 0.55 and target == 1) or (pred < 0.55 and target == 0)):
+                #print(pred, target)
+                correct_count += 1
+            all_count +=1
+    return correct_count/all_count
+
+
+def print_accuracies(train_input, train_targets, test_input, test_targets, mini_batch_size):
+    
+    train_acc = compute_accuracy(train_input, train_targets, mini_batch_size)
+    test_acc = compute_accuracy(test_input, test_targets, mini_batch_size)
+    
+    print("Training Accuracy = " , train_acc)
+    print("Test Accuracy = ", test_acc)
+    return train_acc, test_acc
+
 
 def data_augment(train_input, train_targets, N):
     
