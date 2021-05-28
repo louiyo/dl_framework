@@ -65,9 +65,8 @@ def augment(N):
 
 
 
-def compute_performances(trials = 10, lossType = "MSE", N_normal = 700, N_aug = 300, 
-                        lr = 0.1, epochs = 50, mini_batch_size = 10, verbose = False,
-                        plot = True):
+def compute_performances(trials = 10, lossType = "MSE", N_normal = 1000, N_aug = 0, 
+                        lr = 0.01, epochs = 200, mini_batch_size = 100, verbose = False):
     
     his = []
     
