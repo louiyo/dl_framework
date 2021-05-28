@@ -2,6 +2,7 @@ import torch
 import math
 from time import time
 from plot import *
+from modules import *
 
 
 def norm(coords):
